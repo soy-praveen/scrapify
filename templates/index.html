@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrapify - Instagram Video Downloader</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1f1f1f, #3a3a3a);
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #00e676;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            background: #333;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border: 2px solid #00e676;
+            border-radius: 8px;
+            background: #222;
+            color: #fff;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            color: #fff;
+            background-color: #00e676;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #00c853;
+        }
+        .loading-spinner, .download-link {
+            margin-top: 20px;
+            color: #00e676;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        /* Spinner Animation */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #00e676;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        .download-link a {
+            padding: 10px 20px;
+            background-color: #00c853;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+        .download-link a:hover {
+            background-color: #00a846;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Scrapify</h1>
+    <div class="container">
+        <h2>Instagram Video Downloader</h2>
+        <form id="downloadForm">
+            <input type="text" id="url" placeholder="Enter Instagram video URL" required>
+            <button type="submit">Upload Video</button>
+        </form>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing your video...</p>
+        </div>
+
+        <!-- Download Link Button -->
+        <div id="downloadLink" class="download-link">
+            <a id="videoLink" href="#" download>Download Video</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("downloadForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const url = document.getElementById("url").value;
+
+            // Show the loading spinner and hide the download link
+            document.getElementById("loadingSpinner").style.display = "flex";
+            document.getElementById("downloadLink").style.display = "none";
+
+            try {
+                const response = await fetch("/download", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Error: " + data.error);
+                } else {
+                    // Hide loading spinner, show download button
+                    document.getElementById("loadingSpinner").style.display = "none";
+                    document.getElementById("downloadLink").style.display = "flex";
+                    document.getElementById("videoLink").href = data.download_url;
+                }
+            } catch (error) {
+                alert("An error occurred. Please try again.");
+                document.getElementById("loadingSpinner").style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
